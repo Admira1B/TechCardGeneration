@@ -5,8 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TechCardGeneration.Windows"
         mc:Ignorable="d"
-        Title="InitialWindow" Height="450" Width="800">
+        Title="Добро пожаловать!" MinHeight="634" MinWidth="1128">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="110"/>
+            <RowDefinition Height="6*"/>
+            <RowDefinition Height="3*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left">
+            <Image Source="/Images/AGU logo.png" Height="90" Margin="13"/>
+        </StackPanel>
+        <StackPanel Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" Background="#EAFFE7">
+        </StackPanel>
+        <StackPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Label Style="{StaticResource RobotoCFont}" Content="Добро пожаловать в приложение для генерации технических карт!" Margin="0,-70,0,0" FontSize="34" Foreground="#4B87BE"/>
+        </StackPanel>
+        <StackPanel  Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center">
+            <Button Style="{DynamicResource MainButtonStyle}" Width="60" Height="60">
+                <StackPanel>
+                    <Image Source="/Images/PlusIcon.png" Width="40"/>
+                </StackPanel>
+            </Button>
+            <Label Style="{StaticResource RobotoCFont}" Content="Создание новой тех. карты" Margin="0,10,0,0" FontSize="20" Foreground="#4B87BE"/> 
+        </StackPanel>
     </Grid>
 </Window>
