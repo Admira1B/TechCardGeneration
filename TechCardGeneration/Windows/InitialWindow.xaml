@@ -5,28 +5,50 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TechCardGeneration.Windows"
         mc:Ignorable="d"
-        Title="Добро пожаловать!" MinHeight="634" MinWidth="1128">
+        Title="Добро пожаловать!" MinHeight="634" MinWidth="1128" WindowState="Maximized" Background="#EAFFE7">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="110"/>
             <RowDefinition Height="6*"/>
-            <RowDefinition Height="3*"/>
+            <RowDefinition Height="130"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left">
-            <Image Source="/Images/AGU logo.png" Height="90" Margin="13"/>
+        <StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="White">
+            <Image Source="/Images/AGU logo.png" HorizontalAlignment="Left" Height="90" Margin="13"/>
         </StackPanel>
-        <StackPanel Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" Background="#EAFFE7">
-        </StackPanel>
-        <StackPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+        
+        <!--Приветствие пользователя + кнопка для начала работы с программой-->
+        <StackPanel x:Name="InitialWindowMainSP" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Label Style="{StaticResource RobotoCFont}" Content="Добро пожаловать в приложение для генерации технических карт!" Margin="0,-70,0,0" FontSize="34" Foreground="#4B87BE"/>
         </StackPanel>
-        <StackPanel  Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center">
-            <Button Style="{DynamicResource MainButtonStyle}" Width="60" Height="60">
+        <StackPanel x:Name="InitialWindowControlSP" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+            <Button x:Name="CreatreButton" Style="{DynamicResource MainButtonStyle}" Width="60" Height="60" Click="CreateButton_Click">
                 <StackPanel>
                     <Image Source="/Images/PlusIcon.png" Width="40"/>
                 </StackPanel>
             </Button>
-            <Label Style="{StaticResource RobotoCFont}" Content="Создание новой тех. карты" Margin="0,10,0,0" FontSize="20" Foreground="#4B87BE"/> 
+            <Label Style="{StaticResource RobotoCFont}" Content="Создание новой тех. карты" Margin="0,10,0,0" FontSize="20" Foreground="#4B87BE"/>
+        </StackPanel>
+
+        <!--Ввод количества студентов и колонок тех. карты-->
+        <StackPanel x:Name="CreatingLabelsWindowMainSP" Visibility="Collapsed" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Label Style="{StaticResource RobotoCFont}" Content="Количество студентов в группе" Margin="20,3,0,10" FontSize="24" Foreground="#4B87BE"/>
+            <Label Style="{StaticResource RobotoCFont}" Content="Количество колонок в тех. карте" Margin="20,0,0,10" FontSize="24" Foreground="#4B87BE"/>
+        </StackPanel>
+        <StackPanel x:Name="CreatingTextBoxesWindowMainSP" Visibility="Collapsed" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center">
+            <TextBox x:Name="StudentsInputTextBox" Style="{DynamicResource TextBoxMainStyle}" Width="420" Height="35" Margin="0,0,0,10" Padding="2" FontSize="23" PreviewTextInput="StudentsInputTextBox_PreviewTextInput"/>
+            <TextBox x:Name="ColumnsInputTextBox" Style="{DynamicResource TextBoxMainStyle}" Width="420" Height="35" Margin="0,0,0,10" Padding="2" FontSize="23" PreviewTextInput="ColumnsInputTextBox_PreviewTextInput"/>
+        </StackPanel>
+        <StackPanel x:Name="CreatingWindowControlSP" Visibility="Collapsed" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+            <Button x:Name="ContinueButton" Style="{DynamicResource MainButtonStyle}" Width="60" Height="60" Click="ContinueButton_Click">
+                <StackPanel>
+                    <Image Source="/Images/RightArrowIcon.png" Width="40"/>
+                </StackPanel>
+            </Button>
+            <Label Style="{StaticResource RobotoCFont}" Content="Продолжить" Margin="0,10,0,0" FontSize="20" Foreground="#4B87BE"/>
         </StackPanel>
     </Grid>
 </Window>

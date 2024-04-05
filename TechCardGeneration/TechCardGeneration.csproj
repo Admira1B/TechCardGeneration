@@ -35,8 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>
-    </ApplicationIcon>
+    <ApplicationIcon>Images\AppIco.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -59,6 +58,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="TextBoxGenerator.cs" />
+    <Page Include="Windows\GeneratingWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\InitialWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -66,6 +70,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Windows\GeneratingWindow.xaml.cs">
+      <DependentUpon>GeneratingWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\InitialWindow.xaml.cs">
       <DependentUpon>InitialWindow.xaml</DependentUpon>
@@ -106,6 +113,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\AppIco.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\RightArrowIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CheckMarkIcon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
