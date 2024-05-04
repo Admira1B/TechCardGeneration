@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Drawing;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Shapes;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
-
 
 namespace TechCardGeneration.Windows
 {
@@ -19,6 +21,7 @@ namespace TechCardGeneration.Windows
         {
             InitializeComponent();
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         }
 
         // События клика кнопок.
@@ -82,6 +85,20 @@ namespace TechCardGeneration.Windows
                 try
                 {
                     AddDatasToArray(ColumnСoefficientTextBoxContainer, columnsCoefficients);
+
+                    double sumOfCoefficients = 0;
+
+                    for (int i = 0; i < columnsCoefficients.Length; i++)
+                    {
+                        sumOfCoefficients += (columnsCoefficients[i] * 100);
+                    }
+
+                    if (sumOfCoefficients != 100)
+                    {
+                        MessageBox.Show($"Внимательно проверьте, чтоб сумма коэффицентов была равна 1. Текущая сумма коэффицентов {sumOfCoefficients/100}", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
                 }
                 catch (Exception)
                 {
@@ -115,6 +132,30 @@ namespace TechCardGeneration.Windows
                 MessageBox.Show("Внимательно проверьте, чтобы все поля были заполнены.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
+            string fileName = FileNameInputTextBox.Text;
+            string directoryPath = PathInputTextBox.Text;
+
+            if (Directory.Exists(directoryPath))
+            {
+                if (File.Exists(directoryPath + fileName + ".xlsx"))
+                {
+                    MessageBoxResult result = MessageBox.Show("Файл с таким названием уже существует, хотите ли вы его заменить?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        FileCreate(fileName, directoryPath);
+                        return;
+                    }
+
+                    MessageBox.Show("Введите новое название для файла или измение директорию.", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                FileCreate(fileName, directoryPath);
+                return;
+            }
+
+            MessageBox.Show("Директория по указанному пути не существует.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         // Проверка на ввод чисел.
@@ -254,11 +295,183 @@ namespace TechCardGeneration.Windows
             FinishingWindowControlSP.Visibility = Visibility.Visible;
         }
 
-
-        // Создание EXEL файла.
-        private void CreateExelFile(string fileName, string path, string[] students, string[] columnsName, double[] columnsCoefficients)
+        // Создание файла.
+        private void FileCreate(string fileName, string directoryPath)
         {
+            CreateExelFile(fileName, directoryPath, students, columnsNames, columnsCoefficients);
 
+            if (File.Exists(directoryPath + fileName + ".xlsx"))
+            {
+                MessageBox.Show("Файл был успешно создан.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            MessageBox.Show("Попробуйте ввести нвовый путь или перезапустить программу.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void CreateExelFile(string fileName, string path, string[] students, string[] columnsNames, double[] columnsCoefficients)
+        {
+            using (var package = new ExcelPackage())
+            {
+                int startRow = 2;
+                int startColumn = 4;
+                int totalColumn = startColumn + columnsNames.Length;
+                int examColumn = totalColumn + 1;
+                int totalExamCol = examColumn + 1;
+                int coefficientStartRow = 3;
+                int studentsStartRow = 5;
+                int studentStartCol = 2;
+                int studentColToMerge = 3;
+
+                // Генерация листов.
+                var titlePage = package.Workbook.Worksheets.Add("Титульник");
+                var controlpoint = package.Workbook.Worksheets.Add("Контрольные точки");
+
+                // Генерация полей титульного листа.
+                titlePage.Cells["A1"].Value = "Технологическая карта";
+                titlePage.Cells["A1:E1"].Merge = true;
+
+                titlePage.Cells["A2"].Value = "Дисциплина \"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\"";
+                titlePage.Cells["A2"].Style.Fill.SetBackground(Color.FromArgb(252, 184, 184));
+                titlePage.Cells["A2:E2"].Merge = true;
+
+                titlePage.Cells["A4"].Value = "Специальность: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+                titlePage.Cells["A4"].Style.Fill.SetBackground(Color.FromArgb(252, 184, 184));
+                titlePage.Cells["A4:E4"].Merge = true;
+
+                titlePage.Cells["A5"].Value = "Группа";
+                titlePage.Cells["B5"].Value = "!!!!";
+                titlePage.Cells["B5"].Style.Fill.SetBackground(Color.FromArgb(252, 184, 184));
+                titlePage.Cells["A6"].Value = "Семестр";
+                titlePage.Cells["B6"].Value = "!!!!";
+                titlePage.Cells["B6"].Style.Fill.SetBackground(Color.FromArgb(252, 184, 184));
+
+                titlePage.Cells["A8"].Value = "Виды учебной деятельности";
+                titlePage.Cells["A8"].Style.Fill.SetBackground(Color.FromArgb(234, 255, 231));
+                titlePage.Cells["A8:C8"].Merge = true;
+                titlePage.Cells["D8"].Value = "Весовой коэффициент";
+                titlePage.Cells["D8"].Style.Fill.SetBackground(Color.FromArgb(234, 255, 231));
+                titlePage.Cells["D8:E8"].Merge = true;
+
+                int titlePageStartRow = 9;
+                int titlePageStartCol = 1;
+                int titlePageCoefCol = 4;
+                for (int i = 0; i < columnsNames.Length; i++)
+                {
+                    // Заполнение видов учебной деятельности.
+                    titlePage.Cells[titlePageStartRow + i, titlePageStartCol].Value = columnsNames[i];
+                    titlePage.Cells[$"A{titlePageStartRow + i}"].Style.Fill.SetBackground(Color.FromArgb(245, 211, 181));
+                    titlePage.Cells[$"A{titlePageStartRow + i}:C{titlePageStartRow + i}"].Merge = true;
+
+                    // Заполнение весовых коэффициентов
+                    titlePage.Cells[titlePageStartRow + i, titlePageCoefCol].Value = columnsCoefficients[i];
+                    titlePage.Cells[$"D{titlePageStartRow + i}"].Style.Fill.SetBackground(Color.FromArgb(248, 250, 202));
+                    titlePage.Cells[$"D{titlePageStartRow + i}:E{titlePageStartRow + i}"].Merge = true;
+                }
+
+                titlePage.Cells[$"A{titlePageStartRow + columnsNames.Length}"].Value = "Итого";
+                titlePage.Cells[$"A{titlePageStartRow + columnsNames.Length}"].Style.Fill.SetBackground(Color.FromArgb(252, 183, 119));
+                titlePage.Cells[$"D{titlePageStartRow + columnsNames.Length}"].Formula = $"SUM(D{titlePageStartRow}:D{titlePageStartRow + columnsNames.Length - 1})";
+                titlePage.Cells[$"D{titlePageStartRow + columnsNames.Length}"].Style.Fill.SetBackground(Color.FromArgb(245, 245, 113));
+                titlePage.Cells[$"A{titlePageStartRow + columnsNames.Length}:C{titlePageStartRow + columnsNames.Length}"].Merge = true;
+                titlePage.Cells[$"D{titlePageStartRow + columnsNames.Length}:E{titlePageStartRow + columnsNames.Length}"].Merge = true;
+                titlePage.Cells[$"F{titlePageStartRow + columnsNames.Length}"].Value = "← Должно быть равно 1!";
+
+                // Генерация обязательных полей страницы контрольной точки.
+                controlpoint.Cells["B3:C3"].Merge = true;
+                controlpoint.Cells["B4:C4"].Merge = true;
+
+                controlpoint.Cells["C3"].Value = "Вес(значимость)";
+                controlpoint.Cells["C3"].Style.Fill.SetBackground(Color.FromArgb(202, 206, 250));
+                controlpoint.Cells["C4"].Value = "Дата";
+                controlpoint.Cells["C4"].Style.Fill.SetBackground(Color.FromArgb(231, 202, 252));
+
+                controlpoint.Cells[startRow, totalColumn].Value = "Итого";
+                controlpoint.Cells[startRow, totalColumn].Style.Fill.SetBackground(Color.FromArgb(245, 211, 181));
+                controlpoint.Cells[startRow + 2, totalColumn].Style.Fill.SetBackground(Color.FromArgb(245, 211, 181));
+                controlpoint.Cells[startRow, totalColumn, startRow + 1, totalColumn].Merge = true;
+
+                controlpoint.Cells[startRow, examColumn].Value = "Экзамен";
+                controlpoint.Cells[startRow + 1, examColumn].Value = 0.2;
+                controlpoint.Cells[startRow, examColumn].Style.Fill.SetBackground(Color.FromArgb(234, 255, 231));
+                controlpoint.Cells[startRow + 1, examColumn].Style.Fill.SetBackground(Color.FromArgb(234, 255, 231));
+                controlpoint.Cells[startRow + 2, examColumn].Style.Fill.SetBackground(Color.FromArgb(234, 255, 231));
+
+                controlpoint.Cells[startRow, totalExamCol].Value = "Итого с экз.";
+                controlpoint.Cells[startRow, totalExamCol].Style.Fill.SetBackground(Color.FromArgb(252, 184, 184));
+                controlpoint.Cells[startRow + 2, totalExamCol].Style.Fill.SetBackground(Color.FromArgb(252, 184, 184));
+                controlpoint.Cells[startRow, totalExamCol, startRow + 1, totalExamCol].Merge = true;
+
+                // Заполнение списка студентов.
+                for (int i = 0; i < students.Length; i++)
+                {
+                    controlpoint.Cells[$"A{studentsStartRow + i}"].Value = $"{i + 1}";
+                    controlpoint.Cells[$"B{studentsStartRow + i}"].Value = students[i];
+
+                    controlpoint.Cells[studentsStartRow + i, studentStartCol, studentsStartRow + i, studentColToMerge].Merge = true;
+                }
+
+                // Заполнение списка названий колонок и коэффиецентов, покраска дат.
+                for (int i = 0; i < columnsNames.Length; i++)
+                {
+                    controlpoint.Cells[startRow, startColumn + i].Value = columnsNames[i];
+                    controlpoint.Cells[startRow, startColumn + i].Style.Fill.SetBackground(Color.FromArgb(248, 250, 202));
+
+                    controlpoint.Cells[startRow + 1, startColumn + i].Value = columnsCoefficients[i];
+                    controlpoint.Cells[startRow + 1, startColumn + i].Style.Fill.SetBackground(Color.FromArgb(164, 171, 252));
+
+                    controlpoint.Cells[startRow + 2, startColumn + i].Style.Fill.SetBackground(Color.FromArgb(207, 167, 255));
+                }
+
+                // Заполнение столбца Итого.
+                for (int i = 0; i < students.Length; i++)
+                {
+                    string coefficientFirstCellAddress = controlpoint.Cells[coefficientStartRow, 4].Address;
+                    string coefficientLastCellAddress = controlpoint.Cells[coefficientStartRow, totalColumn - 1].Address;
+
+                    string studentsFirstCellAddress = controlpoint.Cells[studentsStartRow + i, 4].Address;
+                    string studentsLastCellAddress = controlpoint.Cells[studentsStartRow + i, totalColumn - 1].Address;
+
+                    controlpoint.Cells[studentsStartRow + i, totalColumn].Formula = $"SUMPRODUCT({coefficientFirstCellAddress}:{coefficientLastCellAddress}, {studentsFirstCellAddress}:{studentsLastCellAddress})";
+                    
+                    controlpoint.Cells[studentsStartRow + i, totalColumn].Style.Fill.SetBackground(Color.FromArgb(245, 211, 181));
+
+                    controlpoint.Cells[studentsStartRow + i, examColumn].Style.Fill.SetBackground(Color.FromArgb(234, 255, 231));
+
+                    controlpoint.Cells[studentsStartRow + i, totalExamCol].Style.Fill.SetBackground(Color.FromArgb(252, 184, 184));
+                    controlpoint.Cells[studentsStartRow + i, totalExamCol + 1].Style.Fill.SetBackground(Color.FromArgb(250, 145, 145));
+                }
+
+                // Заполнение столбца Итого с экз.
+                for (int i = 0; i < students.Length; i++)
+                {
+                    string examCoefficientAddress = controlpoint.Cells[3, examColumn].Address;
+                    string examColAddress = controlpoint.Cells[studentsStartRow + i, examColumn].Address;
+
+                    string totalAddress = controlpoint.Cells[studentsStartRow + i, totalColumn].Address;
+
+                    controlpoint.Cells[studentsStartRow + i, totalExamCol].Formula = $"{examCoefficientAddress} * {examColAddress} + {totalAddress}";
+                }
+
+                // Заполнение столбца текстовых оценок.
+                for (int i = 0; i < students.Length; i++)
+                {
+                    string totalExamAddress = controlpoint.Cells[studentsStartRow + i, totalExamCol].Address;
+
+                    controlpoint.Cells[studentsStartRow + i, totalExamCol + 1].Formula = $"IF({totalExamAddress}>=85, \"отл.\", IF({totalExamAddress}>=70, \"хор.\", IF({totalExamAddress}>=50, \"удовл.\", \"неудовл.\")))";
+                }
+
+                using (ExcelRange range = controlpoint.Cells[1, 1, controlpoint.Dimension.End.Row, controlpoint.Dimension.End.Column])
+                {
+                    range.Style.Border.Top.Style = ExcelBorderStyle.None;
+                    range.Style.Border.Left.Style = ExcelBorderStyle.None;
+                    range.Style.Border.Right.Style = ExcelBorderStyle.None;
+                    range.Style.Border.Bottom.Style = ExcelBorderStyle.None;
+                }
+
+                // Сохранение файла
+                package.SaveAs(new FileInfo(path + fileName + ".xlsx"));
+            }
         }
     }
 }

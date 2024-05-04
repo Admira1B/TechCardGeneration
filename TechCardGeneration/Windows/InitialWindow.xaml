@@ -107,7 +107,7 @@
         <StackPanel x:Name="PathExamples" Visibility="Collapsed" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center">
             <Label Style="{StaticResource RobotoCFont}" Visibility="Visible" Content="Примеры пути для сохранения файла:"/>
             <Label Style="{StaticResource RobotoCFont}" Visibility="Visible" Content="C:\\Users\\User\\Desktop\\" Margin="30,0,0,0"/>
-            <Label Style="{StaticResource RobotoCFont}" Visibility="Visible" Content="C:\Users\\User\Desktop\" Margin="30,0,0,0"/>
+            <Label Style="{StaticResource RobotoCFont}" Visibility="Visible" Content="C:\Users\User\Desktop\" Margin="30,0,0,0"/>
         </StackPanel>
 
         <!--Кнопка для завершения создания файла-->
