@@ -127,6 +127,8 @@ namespace TechCardGeneration.Windows
 
         private void FinishButton_Click(object sender, RoutedEventArgs e)
         {
+            InitialWindow newWindow = new InitialWindow();
+
             if (string.IsNullOrWhiteSpace(PathInputTextBox.Text) || string.IsNullOrWhiteSpace(FileNameInputTextBox.Text))
             {
                 MessageBox.Show("Внимательно проверьте, чтобы все поля были заполнены.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -143,8 +145,19 @@ namespace TechCardGeneration.Windows
                     MessageBoxResult result = MessageBox.Show("Файл с таким названием уже существует, хотите ли вы его заменить?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     if (result == MessageBoxResult.Yes)
                     {
-                        FileCreate(fileName, directoryPath);
-                        return;
+                        try
+                        {
+                            FileCreate(fileName, directoryPath);
+
+                            newWindow.Show();
+                            this.Close();
+                            return;
+                        }
+                        catch (Exception)
+                        {
+                            MessageBox.Show("Файл с таким названием открыт на вашем компьютере, закройте его и повторите попытку.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
                     }
 
                     MessageBox.Show("Введите новое название для файла или измение директорию.", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -152,6 +165,9 @@ namespace TechCardGeneration.Windows
                 }
 
                 FileCreate(fileName, directoryPath);
+
+                newWindow.Show();
+                this.Close();
                 return;
             }
 
@@ -381,10 +397,10 @@ namespace TechCardGeneration.Windows
                 controlpoint.Cells["B3:C3"].Merge = true;
                 controlpoint.Cells["B4:C4"].Merge = true;
 
-                controlpoint.Cells["C3"].Value = "Вес(значимость)";
-                controlpoint.Cells["C3"].Style.Fill.SetBackground(Color.FromArgb(202, 206, 250));
-                controlpoint.Cells["C4"].Value = "Дата";
-                controlpoint.Cells["C4"].Style.Fill.SetBackground(Color.FromArgb(231, 202, 252));
+                controlpoint.Cells["B3"].Value = "Вес(значимость)";
+                controlpoint.Cells["B3"].Style.Fill.SetBackground(Color.FromArgb(202, 206, 250));
+                controlpoint.Cells["B4"].Value = "Дата";
+                controlpoint.Cells["B4"].Style.Fill.SetBackground(Color.FromArgb(231, 202, 252));
 
                 controlpoint.Cells[startRow, totalColumn].Value = "Итого";
                 controlpoint.Cells[startRow, totalColumn].Style.Fill.SetBackground(Color.FromArgb(245, 211, 181));
