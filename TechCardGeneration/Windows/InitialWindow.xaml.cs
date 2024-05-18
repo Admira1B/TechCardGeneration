@@ -3,7 +3,6 @@ using System.Drawing;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Shapes;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 
@@ -47,15 +46,27 @@ namespace TechCardGeneration.Windows
                 return;
             }
 
-            TextBoxGenerator.Generation(studentsNumber, StudentTextBoxContainer, 430);
             TextBoxGenerator.Generation(columnsNumber, ColumnNameTextBoxContainer, 300);
             TextBoxGenerator.Generation(columnsNumber, ColumnСoefficientTextBoxContainer, 300);
-
             students = new string[studentsNumber];
             columnsNames = new string[columnsNumber];
             columnsCoefficients = new double[columnsNumber];
 
-            ShowStudentInfo();
+            if (!(bool)NotFillStudentsNames.IsChecked)
+            {
+                TextBoxGenerator.Generation(studentsNumber, StudentTextBoxContainer, 430);
+
+                for (int i = 0; i < students.Length; i++)
+                {
+                    students[i] = "";
+                }
+
+                ShowStudentInfo();
+                return;
+            }
+
+            isContinueButtonClicked = true;
+            ShowColumnInfo();
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -81,7 +92,7 @@ namespace TechCardGeneration.Windows
                     MessageBox.Show("Внимательно проверьте, чтобы все поля названий колонок были заполнены.", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                
+
                 try
                 {
                     AddDatasToArray(ColumnСoefficientTextBoxContainer, columnsCoefficients);
@@ -95,7 +106,7 @@ namespace TechCardGeneration.Windows
 
                     if (sumOfCoefficients != 100)
                     {
-                        MessageBox.Show($"Внимательно проверьте, чтоб сумма коэффицентов была равна 1. Текущая сумма коэффицентов {sumOfCoefficients/100}", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"Внимательно проверьте, чтоб сумма коэффицентов была равна 1. Текущая сумма коэффицентов {sumOfCoefficients / 100}", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
 
@@ -121,7 +132,7 @@ namespace TechCardGeneration.Windows
                 isContinueButtonClicked = false;
                 return;
             }
-            
+
             ShowColumnInfo();
         }
 
@@ -211,7 +222,7 @@ namespace TechCardGeneration.Windows
                             if (itemSP is TextBox)
                             {
                                 TextBox textBox = itemSP as TextBox;
-                                if (string.IsNullOrWhiteSpace(textBox.Text)) throw new Exception(); 
+                                if (string.IsNullOrWhiteSpace(textBox.Text)) throw new Exception();
 
                                 strArray[count] = textBox.Text;
                                 count++;
@@ -255,9 +266,10 @@ namespace TechCardGeneration.Windows
             CreatingLabelsWindowMainSP.Visibility = Visibility.Visible;
             CreatingTextBoxesWindowMainSP.Visibility = Visibility.Visible;
             CreatingWindowControlSP.Visibility = Visibility.Visible;
+            CheckBoxContainerStudentsNamesSP.Visibility = Visibility.Visible;
         }
 
-        private void BackToCreatingElements() 
+        private void BackToCreatingElements()
         {
             BackSP.Visibility = Visibility.Collapsed;
             StudentLabelSP.Visibility = Visibility.Collapsed;
@@ -271,6 +283,7 @@ namespace TechCardGeneration.Windows
             CreatingLabelsWindowMainSP.Visibility = Visibility.Visible;
             CreatingTextBoxesWindowMainSP.Visibility = Visibility.Visible;
             CreatingWindowControlSP.Visibility = Visibility.Visible;
+            CheckBoxContainerStudentsNamesSP.Visibility = Visibility.Visible;
         }
 
         private void ShowStudentInfo()
@@ -278,8 +291,9 @@ namespace TechCardGeneration.Windows
             CreatingLabelsWindowMainSP.Visibility = Visibility.Collapsed;
             CreatingTextBoxesWindowMainSP.Visibility = Visibility.Collapsed;
             CreatingWindowControlSP.Visibility = Visibility.Collapsed;
+            CheckBoxContainerStudentsNamesSP.Visibility = Visibility.Collapsed;
 
-            BackSP.Visibility= Visibility.Visible;
+            BackSP.Visibility = Visibility.Visible;
             StudentLabelSP.Visibility = Visibility.Visible;
             StudentSP.Visibility = Visibility.Visible;
             GeneratingWindowControlSP.Visibility = Visibility.Visible;
@@ -289,11 +303,17 @@ namespace TechCardGeneration.Windows
         {
             StudentLabelSP.Visibility = Visibility.Collapsed;
             StudentSP.Visibility = Visibility.Collapsed;
+            CreatingLabelsWindowMainSP.Visibility = Visibility.Collapsed;
+            CreatingTextBoxesWindowMainSP.Visibility = Visibility.Collapsed;
+            CreatingWindowControlSP.Visibility = Visibility.Collapsed;
+            CheckBoxContainerStudentsNamesSP.Visibility = Visibility.Collapsed;
 
+            BackSP.Visibility = Visibility.Visible;
             ColumnNameLabelSP.Visibility = Visibility.Visible;
             ColumnNameSP.Visibility = Visibility.Visible;
             ColumnCoefficientLabelSP.Visibility = Visibility.Visible;
             ColumnCoefficientSP.Visibility = Visibility.Visible;
+            GeneratingWindowControlSP.Visibility = Visibility.Visible;
         }
 
         private void ShowFileCreatingElements()
@@ -327,17 +347,18 @@ namespace TechCardGeneration.Windows
 
         private void CreateExelFile(string fileName, string path, string[] students, string[] columnsNames, double[] columnsCoefficients)
         {
+            int startRow = 2;
+            int startColumn = 4;
+            int totalColumn = startColumn + columnsNames.Length;
+            int examColumn = totalColumn + 1;
+            int totalExamCol = examColumn + 1;
+            int coefficientStartRow = 3;
+            int studentsStartRow = 5;
+            int studentStartCol = 2;
+            int studentColToMerge = 3;
+
             using (var package = new ExcelPackage())
             {
-                int startRow = 2;
-                int startColumn = 4;
-                int totalColumn = startColumn + columnsNames.Length;
-                int examColumn = totalColumn + 1;
-                int totalExamCol = examColumn + 1;
-                int coefficientStartRow = 3;
-                int studentsStartRow = 5;
-                int studentStartCol = 2;
-                int studentColToMerge = 3;
 
                 // Генерация листов.
                 var titlePage = package.Workbook.Worksheets.Add("Титульник");
@@ -423,6 +444,7 @@ namespace TechCardGeneration.Windows
                 {
                     controlpoint.Cells[$"A{studentsStartRow + i}"].Value = $"{i + 1}";
                     controlpoint.Cells[$"B{studentsStartRow + i}"].Value = students[i];
+                    controlpoint.Cells[$"B{studentsStartRow + i}"].Style.Fill.SetBackground(Color.FromArgb(216, 242, 242));
 
                     controlpoint.Cells[studentsStartRow + i, studentStartCol, studentsStartRow + i, studentColToMerge].Merge = true;
                 }
@@ -448,8 +470,9 @@ namespace TechCardGeneration.Windows
                     string studentsFirstCellAddress = controlpoint.Cells[studentsStartRow + i, 4].Address;
                     string studentsLastCellAddress = controlpoint.Cells[studentsStartRow + i, totalColumn - 1].Address;
 
-                    controlpoint.Cells[studentsStartRow + i, totalColumn].Formula = $"SUMPRODUCT({coefficientFirstCellAddress}:{coefficientLastCellAddress}, {studentsFirstCellAddress}:{studentsLastCellAddress})";
-                    
+                    controlpoint.Cells[studentsStartRow + i, totalColumn].Formula = $"SUMPRODUCT({coefficientFirstCellAddress}:" +
+                        $"{coefficientLastCellAddress}, {studentsFirstCellAddress}:{studentsLastCellAddress})";
+
                     controlpoint.Cells[studentsStartRow + i, totalColumn].Style.Fill.SetBackground(Color.FromArgb(245, 211, 181));
 
                     controlpoint.Cells[studentsStartRow + i, examColumn].Style.Fill.SetBackground(Color.FromArgb(234, 255, 231));
@@ -474,7 +497,8 @@ namespace TechCardGeneration.Windows
                 {
                     string totalExamAddress = controlpoint.Cells[studentsStartRow + i, totalExamCol].Address;
 
-                    controlpoint.Cells[studentsStartRow + i, totalExamCol + 1].Formula = $"IF({totalExamAddress}>=85, \"отл.\", IF({totalExamAddress}>=70, \"хор.\", IF({totalExamAddress}>=50, \"удовл.\", \"неудовл.\")))";
+                    controlpoint.Cells[studentsStartRow + i, totalExamCol + 1].Formula = $"IF({totalExamAddress}>=85, \"отл.\", " +
+                        $"IF({totalExamAddress}>=70, \"хор.\", IF({totalExamAddress}>=50, \"удовл.\", \"неудовл.\")))";
                 }
 
                 using (ExcelRange range = controlpoint.Cells[1, 1, controlpoint.Dimension.End.Row, controlpoint.Dimension.End.Column])
