@@ -140,8 +140,8 @@ namespace TechCardGeneration.Windows
         private void DirButton_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Excel файлы (.xlsx)|*.xlsx";
-            saveFileDialog.Title = "Сохранить эксель файл";
+            saveFileDialog.Filter = "Excel файлы (*.xlsx)|*.xlsx";
+            saveFileDialog.Title = "Выбор папки для сохранения Excel файла";
 
             if (saveFileDialog.ShowDialog() == true)
             {
