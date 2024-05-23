@@ -113,8 +113,11 @@
             <Label Style="{StaticResource RobotoCFont}" Content="Введите название файла" Margin="20,0,0,10" FontSize="24" Foreground="#4B87BE"/>
         </StackPanel>
         <StackPanel x:Name="CreatingTextBoxesWindowSP" Visibility="Collapsed" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center">
-            <TextBox x:Name="PathInputTextBox" Style="{DynamicResource TextBoxMainStyle}" Width="420" Height="35" Margin="0,0,0,10" Padding="2" FontSize="21"/>
-            <TextBox x:Name="FileNameInputTextBox" Style="{DynamicResource TextBoxMainStyle}" Width="420" Height="35" Margin="0,0,0,10" Padding="2" FontSize="21"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                <TextBox x:Name="PathInputTextBox" Style="{DynamicResource TextBoxMainStyle}" Width="420" Height="35" Margin="0,0,0,10" Padding="2" FontSize="21"/>
+                <Image x:Name="DirButton" Source="/Images/DirIcon.png" Height="35" Margin="10, -12, 0, 0" Cursor="Hand" MouseLeftButtonUp="DirButton_Click"/>
+            </StackPanel>
+            <TextBox x:Name="FileNameInputTextBox" Style="{DynamicResource TextBoxMainStyle}" Width="420" Height="35" Margin="-45,0,0,10" Padding="2" FontSize="21"/>
         </StackPanel>
         <StackPanel x:Name="PathExamples" Visibility="Collapsed" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center">
             <Label Style="{StaticResource RobotoCFont}" Visibility="Visible" Content="Примеры пути для сохранения файла:"/>

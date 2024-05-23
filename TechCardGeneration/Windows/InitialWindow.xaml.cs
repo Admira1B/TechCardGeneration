@@ -3,6 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Win32;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 
@@ -134,6 +135,24 @@ namespace TechCardGeneration.Windows
             }
 
             ShowColumnInfo();
+        }
+
+        private void DirButton_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Excel файлы (.xlsx)|*.xlsx";
+            saveFileDialog.Title = "Сохранить эксель файл";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                string fullFilePath = saveFileDialog.FileName;
+                string fullFileName = saveFileDialog.SafeFileName;
+                string filePath = fullFilePath.Replace(fullFileName, "");
+                string fileName = fullFileName.Substring(0, fullFileName.Length - 5);
+
+                PathInputTextBox.Text = filePath;
+                FileNameInputTextBox.Text = fileName;
+            }
         }
 
         private void FinishButton_Click(object sender, RoutedEventArgs e)
@@ -328,6 +347,7 @@ namespace TechCardGeneration.Windows
             PathExamples.Visibility = Visibility.Visible;
             CreatingLabelsWindowSP.Visibility = Visibility.Visible;
             CreatingTextBoxesWindowSP.Visibility = Visibility.Visible;
+            DirButton.Visibility = Visibility.Visible;
             FinishingWindowControlSP.Visibility = Visibility.Visible;
         }
 
